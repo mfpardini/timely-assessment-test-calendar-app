@@ -1,4 +1,4 @@
-export interface EventsRequestFilters {
+export interface EventsFiltersRequestParams {
   start_date_utc?: number;
   end_date_utc?: number;
   term?: string;

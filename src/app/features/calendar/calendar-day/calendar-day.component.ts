@@ -1,9 +1,16 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
+import { Pagination } from 'src/app/shared/models/pagination.model';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { CalendarInfo } from '../models/calendar-info.model';
-import { EventsRequestFilters } from '../models/events-request-filters.model';
+import { EventsFiltersRequestParams } from '../models/events-filters-request-params.model';
 import { EventsService } from '../services/events.service';
 
 @Component({
@@ -21,7 +28,9 @@ export class CalendarDayComponent implements OnInit, OnDestroy {
   selectedDate: Date = new Date();
   events: CalendarEvent[] = [];
 
-  eventsFilters?: EventsRequestFilters;
+  eventsFilters?: EventsFiltersRequestParams;
+
+  pagination?: Pagination<CalendarEvent>;
 
   constructor(private readonly eventsService: EventsService) {}
 
@@ -29,16 +38,20 @@ export class CalendarDayComponent implements OnInit, OnDestroy {
     this.eventsService
       .getEventsFilters()
       .subscribe((filters) => (this.eventsFilters = filters));
-
-    // this.fetchEventsForDate(this.selectedDate);
+    this.eventsService.setEventsFilters({
+      ...this.eventsFilters,
+      per_page: 30,
+      page: 1,
+    });
+    this.fetchEventsForDate();
   }
 
   getData() {
     this.isLoading = true;
-    this.events = [];
     this.eventsService.getEvents(this.calendarInfo.id).subscribe({
       next: (data) => {
-        this.events = data.items;
+        this.pagination = data;
+        this.events = [...this.events, ...data.items];
         this.isLoading = false;
       },
       error: (error) => {
@@ -48,25 +61,55 @@ export class CalendarDayComponent implements OnInit, OnDestroy {
     });
   }
 
+  @HostListener('window:scroll', [])
+  onScroll(): void {
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+      !this.isLoading
+    ) {
+      this.loadMore();
+    }
+  }
+
+  loadMore() {
+    if (!this.pagination?.has_next) {
+      return;
+    }
+
+    const page =
+      this.pagination?.from === 0
+        ? 2
+        : this.pagination!.from / this.pagination!.size + 2;
+
+    this.isLoading = true;
+    this.eventsService.setEventsFilters({
+      ...this.eventsFilters,
+
+      page: page,
+    });
+    this.getData();
+  }
+
   goToPreviousDay(): void {
     this.selectedDate = new Date(this.selectedDate);
     this.selectedDate.setDate(this.selectedDate.getDate() - 1);
-    this.fetchEventsForDate(this.selectedDate);
+    this.fetchEventsForDate();
   }
 
   goToNextDay(): void {
     this.selectedDate = new Date(this.selectedDate);
     this.selectedDate.setDate(this.selectedDate.getDate() + 1);
-    this.fetchEventsForDate(this.selectedDate);
+    this.fetchEventsForDate();
   }
 
-  fetchEventsForDate(date: Date): void {
+  fetchEventsForDate(): void {
     this.eventsService.setEventsFilters({
       ...this.eventsFilters,
       start_date_utc: moment(this.selectedDate).startOf('day').unix(),
       end_date_utc: moment(this.selectedDate).endOf('day').unix(),
-      per_page: 5,
+      page: 1,
     });
+    this.events = [];
     this.getData();
   }
 

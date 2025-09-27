@@ -2,16 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { EventsRequestFilters } from '../models/events-request-filters.model';
+import { EventsFiltersRequestParams } from '../models/events-filters-request-params.model';
 import { EventsResponse } from '../models/events-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
   private baseUrl = environment.mainApiUrl + '/calendars';
 
-  private eventsFilters = new BehaviorSubject<EventsRequestFilters>({});
+  private eventsFilters = new BehaviorSubject<EventsFiltersRequestParams>({});
 
-  public setEventsFilters(filters: EventsRequestFilters) {
+  public setEventsFilters(filters: EventsFiltersRequestParams) {
     this.eventsFilters.next(filters);
   }
 
