@@ -1,0 +1,7 @@
+<div class="spinner-border" role="status" *ngIf="isLoading; else notLoading">
+  <span class="visually-hidden">Loading...</span>
+</div>
+
+<ng-template #notLoading>
+  <app-calendar-day [calendarInfo]="calendarInfo!"></app-calendar-day>
+</ng-template>
