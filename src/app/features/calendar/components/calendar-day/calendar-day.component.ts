@@ -1,17 +1,21 @@
 import {
   Component,
+  EventEmitter,
   HostListener,
   Input,
   OnDestroy,
   OnInit,
+  Output,
 } from '@angular/core';
 import * as moment from 'moment';
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { Subscription } from 'rxjs';
 import { Pagination } from 'src/app/shared/models/pagination.model';
-import { CalendarEvent } from '../models/calendar-event.model';
-import { CalendarInfo } from '../models/calendar-info.model';
-import { EventsFiltersRequestParams } from '../models/events-filters-request-params.model';
-import { EventsService } from '../services/events.service';
+import { AlertsService } from 'src/app/shared/services/alerts.service';
+import { CalendarEvent } from '../../models/calendar-event.model';
+import { CalendarInfo } from '../../models/calendar-info.model';
+import { EventsFiltersRequestParams } from '../../models/events-filters-request-params.model';
+import { EventsService } from '../../services/events.service';
 
 @Component({
   selector: 'app-calendar-day',
@@ -20,30 +24,55 @@ import { EventsService } from '../services/events.service';
 })
 export class CalendarDayComponent implements OnInit, OnDestroy {
   @Input() calendarInfo!: CalendarInfo;
+  @Output() openEventDetails = new EventEmitter<number>();
 
   subscriptions: Subscription[] = [];
 
   isLoading = false;
 
-  selectedDate: Date = new Date();
+  isFirstLoad = true;
+
+  selectedDate?: Date;
   events: CalendarEvent[] = [];
 
   eventsFilters?: EventsFiltersRequestParams;
 
   pagination?: Pagination<CalendarEvent>;
 
-  constructor(private readonly eventsService: EventsService) {}
+  bsConfig?: Partial<BsDatepickerConfig>;
+
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly alertsService: AlertsService
+  ) {}
 
   ngOnInit(): void {
-    this.eventsService
-      .getEventsFilters()
-      .subscribe((filters) => (this.eventsFilters = filters));
+    this.subscriptions.push(
+      this.eventsService
+        .getEventsFilters()
+        .subscribe((filters) => (this.eventsFilters = filters))
+    );
+
+    this.subscriptions.push(
+      this.eventsService.eventsFiltersChanged.subscribe(() => {
+        this.fetchEventsForDate();
+      })
+    );
+
     this.eventsService.setEventsFilters({
       ...this.eventsFilters,
       per_page: 30,
       page: 1,
     });
+
     this.fetchEventsForDate();
+
+    this.bsConfig = {
+      dateInputFormat: 'dddd, MMMM Do YY',
+      showTodayButton: true,
+      selectFromOtherMonth: true,
+      showWeekNumbers: false,
+    };
   }
 
   getData() {
@@ -56,6 +85,9 @@ export class CalendarDayComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.log(error);
+        this.alertsService.showErrorToast(
+          'Error loading events. Try again later.'
+        );
         this.isLoading = false;
       },
     });
@@ -91,18 +123,21 @@ export class CalendarDayComponent implements OnInit, OnDestroy {
   }
 
   goToPreviousDay(): void {
-    this.selectedDate = new Date(this.selectedDate);
+    this.selectedDate = new Date(this.selectedDate!);
     this.selectedDate.setDate(this.selectedDate.getDate() - 1);
     this.fetchEventsForDate();
   }
 
   goToNextDay(): void {
-    this.selectedDate = new Date(this.selectedDate);
+    this.selectedDate = new Date(this.selectedDate!);
     this.selectedDate.setDate(this.selectedDate.getDate() + 1);
     this.fetchEventsForDate();
   }
 
   fetchEventsForDate(): void {
+    if (!this.selectedDate) {
+      this.selectedDate = new Date();
+    }
     this.eventsService.setEventsFilters({
       ...this.eventsFilters,
       start_date_utc: moment(this.selectedDate).startOf('day').unix(),
@@ -111,6 +146,24 @@ export class CalendarDayComponent implements OnInit, OnDestroy {
     });
     this.events = [];
     this.getData();
+  }
+
+  onDateChange(date: Date) {
+    this.selectedDate = date;
+    if (!this.selectedDate || !date) {
+      return;
+    }
+    if (this.selectedDate.toDateString() !== date.toDateString()) {
+      this.fetchEventsForDate();
+    }
+  }
+
+  formatDate(date: Date | string) {
+    return moment(date).format('ddd DD MMM, HH:mm ');
+  }
+
+  showEventDetails(eventId: number) {
+    this.openEventDetails.emit(eventId);
   }
 
   ngOnDestroy(): void {

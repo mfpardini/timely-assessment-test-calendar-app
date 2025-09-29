@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CalendarDayComponent } from './calendar-day.component';
+import { SpinnerFullComponent } from './spinner-full.component';
 
-describe('CalendarDayComponent', () => {
-  let component: CalendarDayComponent;
-  let fixture: ComponentFixture<CalendarDayComponent>;
+describe('SppinerFullComponent', () => {
+  let component: SpinnerFullComponent;
+  let fixture: ComponentFixture<SpinnerFullComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CalendarDayComponent ]
+      declarations: [ SpinnerFullComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CalendarDayComponent);
+    fixture = TestBed.createComponent(SpinnerFullComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

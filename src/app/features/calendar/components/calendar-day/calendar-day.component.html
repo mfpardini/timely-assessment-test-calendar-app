@@ -1,4 +1,4 @@
-<div class="container my-4">
+<div class="my-4">
   <div class="row align-items-center mb-4">
     <div class="col-md-6 col-lg-4">
       <div class="d-flex align-items-center">
@@ -8,7 +8,16 @@
           </button>
         </div>
         <div class="col text-center">
-          <span class="mb-0">{{ selectedDate | date : "fullDate" }}</span>
+          <!-- <span class="mb-0">{{ selectedDate | date : "fullDate" }}</span> -->
+          <input
+            id="calendar-day-datepicker"
+            class="form-control text-center cursor-pointer"
+            style="border: 0;"
+            bsDatepicker
+            [(ngModel)]="selectedDate"
+            [bsConfig]="bsConfig"
+            (bsValueChange)="onDateChange($event)"
+          />
         </div>
         <div class="col-auto text-end">
           <button class="btn" (click)="goToNextDay()">
@@ -21,22 +30,22 @@
 
   <div class="row" *ngIf="events.length > 0; else noEvents">
     <div class="col-md-6 col-lg-4 mb-4" *ngFor="let event of events">
-      <div class="card h-100 shadow-sm">
+      <div class="card h-100 shadow-sm cursor-pointer" (click)="showEventDetails(event.id)">
+        <div class="card-body">
+          <h5 class="card-title">{{ event.title }}</h5>
+          <p class="card-text">
+            <small class="text-muted">
+              📅 {{ formatDate(event.start_datetime) }} - {{ formatDate(event.end_datetime) }}
+            </small>
+          </p>
+          <p class="card-text">{{ event.description_short }}</p>
+        </div>
         <img
           *ngIf="event.images"
           [src]="event.images[0].small.url"
           class="card-img-top"
           alt="event image"
         />
-        <div class="card-body">
-          <h5 class="card-title">{{ event.title }}</h5>
-          <p class="card-text">{{ event.description_short }}</p>
-          <p class="card-text">
-            <small class="text-muted">
-              Time: {{ event.start_datetime | date }}
-            </small>
-          </p>
-        </div>
       </div>
     </div>
   </div>

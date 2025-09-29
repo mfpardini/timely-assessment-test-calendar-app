@@ -5,7 +5,21 @@ import { environment } from 'src/environments/environment';
 import { FiltersRequestParams } from '../models/filters-request-params.model';
 import { StandardFilter } from '../models/standard-filter.model';
 
-type FilterRequestType = 'categories' | 'tags' | 'organizers' | 'venues';
+export type FilterRequestType = 'categories' | 'tags' | 'organizers' | 'venues';
+
+export interface FiltersResponse {
+  items: StandardFilter[];
+  current_page: number;
+  per_page: number;
+  from: number;
+  to: number;
+  first_page_url: string;
+  last_page_url: string;
+  prev_page_url: string;
+  next_page: string;
+  path: string;
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class FiltersService {
@@ -17,9 +31,9 @@ export class FiltersService {
     type: FilterRequestType,
     calendarId: number,
     filters: FiltersRequestParams
-  ): Observable<StandardFilter> {
+  ): Observable<FiltersResponse> {
     return this.http
-      .get<{ data: StandardFilter }>(
+      .get<{ data: FiltersResponse }>(
         `${this.baseUrl}/${calendarId}/filters/${type}`,
         {
           params: { ...JSON.parse(JSON.stringify(filters)) },
@@ -31,28 +45,28 @@ export class FiltersService {
   getCategories(
     calendarId: number,
     filters: FiltersRequestParams
-  ): Observable<StandardFilter> {
+  ): Observable<FiltersResponse> {
     return this.getFilters('categories', calendarId, filters);
   }
 
   getTags(
     calendarId: number,
     filters: FiltersRequestParams
-  ): Observable<StandardFilter> {
+  ): Observable<FiltersResponse> {
     return this.getFilters('tags', calendarId, filters);
   }
 
   getOrganizers(
     calendarId: number,
     filters: FiltersRequestParams
-  ): Observable<StandardFilter> {
+  ): Observable<FiltersResponse> {
     return this.getFilters('organizers', calendarId, filters);
   }
 
   getVenues(
     calendarId: number,
     filters: FiltersRequestParams
-  ): Observable<StandardFilter> {
+  ): Observable<FiltersResponse> {
     return this.getFilters('venues', calendarId, filters);
   }
 }
