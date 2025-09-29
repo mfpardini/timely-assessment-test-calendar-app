@@ -1,0 +1,60 @@
+<ng-select
+  [items]="items"
+  [virtualScroll]="true"
+  [typeahead]="searchInput$"
+  [loading]="loading"
+  bindValue="id"
+  bindLabel="title"
+  [placeholder]="filterType | titlecase"
+  (scrollToEnd)="loadMore()"
+  (search)="onSearch($event.term)"
+  (focus)="firstLoadItems()"
+  [multiple]="true"
+  [closeOnSelect]="false"
+  appendTo="body"
+  (add)="onToggleItem()"
+  (remove)="onToggleItem()"
+  (clear)="onRemoveItems()"
+  [(ngModel)]="selectedItems"
+>
+  <!-- Not Found Template -->
+  <ng-template ng-notfound-tmp let-searchTerm="searchTerm">
+    <div class="not-found-text">No items found for "{{ searchTerm }}"</div>
+  </ng-template>
+
+  <ng-template ng-multi-label-tmp let-items="items">
+    <div class="ng-value">
+      <span class="ng-value-label">
+        {{ items.length }} selected {{ filterType }}
+      </span>
+    </div>
+  </ng-template>
+
+  <ng-template
+    ng-option-tmp
+    let-item="item"
+    let-item$="item$"
+    let-index="index"
+  >
+    <input id="item-{{ index }}" type="checkbox" [ngModel]="item$.selected" />
+    {{ item.title }}
+  </ng-template>
+
+  <!-- Option Template -->
+  <!-- <ng-template ng-option-tmp let-item="item" let-index="index">
+    <div class="option-item">
+      <span class="option-label">{{ item.title }}</span>
+      <small class="option-description" *ngIf="item['description']">
+        {{ item["description"] }}
+      </small>
+    </div>
+  </ng-template> -->
+
+  <!-- Label Template (for multiple selection) -->
+  <!-- <ng-template ng-label-tmp let-item="item" let-clear="clear">
+    <span class="selected-label">
+      {{ item.title }}
+      <span class="remove-btn" (click)="clear(item)">×</span>
+    </span>
+  </ng-template> -->
+</ng-select>

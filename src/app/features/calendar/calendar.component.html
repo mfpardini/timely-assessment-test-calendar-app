@@ -1,7 +1,9 @@
-<div class="spinner-border" role="status" *ngIf="isLoading; else notLoading">
-  <span class="visually-hidden">Loading...</span>
-</div>
+<div class="mt-4">
+  <app-spinner-full *ngIf="isLoading; else notLoading"></app-spinner-full>
 
-<ng-template #notLoading>
-  <app-calendar-day [calendarInfo]="calendarInfo!"></app-calendar-day>
-</ng-template>
+  <ng-template #notLoading>
+    <app-calendar-filters [calendarId]="calendarInfo!.id"></app-calendar-filters>
+
+    <app-calendar-day [calendarInfo]="calendarInfo!" (openEventDetails)="openEventDetails($event)"></app-calendar-day>
+  </ng-template>
+</div>
