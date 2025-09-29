@@ -1,0 +1,9 @@
+<div class="mt-4">
+  <app-spinner-full *ngIf="isLoading; else notLoading"></app-spinner-full>
+
+  <ng-template #notLoading>
+    <app-calendar-filters [calendarId]="calendarInfo!.id"></app-calendar-filters>
+
+    <app-calendar-day [calendarInfo]="calendarInfo!" (openEventDetails)="openEventDetails($event)"></app-calendar-day>
+  </ng-template>
+</div>

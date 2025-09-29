@@ -1,0 +1,60 @@
+<div class="my-4">
+  <div class="row align-items-center mb-4">
+    <div class="col-md-6 col-lg-4">
+      <div class="d-flex align-items-center">
+        <div class="col-auto">
+          <button class="btn" (click)="goToPreviousDay()">
+            <i class="bi bi-arrow-left-short"></i>
+          </button>
+        </div>
+        <div class="col text-center">
+          <!-- <span class="mb-0">{{ selectedDate | date : "fullDate" }}</span> -->
+          <input
+            id="calendar-day-datepicker"
+            class="form-control text-center cursor-pointer"
+            style="border: 0;"
+            bsDatepicker
+            [(ngModel)]="selectedDate"
+            [bsConfig]="bsConfig"
+            (bsValueChange)="onDateChange($event)"
+          />
+        </div>
+        <div class="col-auto text-end">
+          <button class="btn" (click)="goToNextDay()">
+            <i class="bi bi-arrow-right-short"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="events.length > 0; else noEvents">
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let event of events">
+      <div class="card h-100 shadow-sm cursor-pointer" (click)="showEventDetails(event.id)">
+        <div class="card-body">
+          <h5 class="card-title">{{ event.title }}</h5>
+          <p class="card-text">
+            <small class="text-muted">
+              📅 {{ formatDate(event.start_datetime) }} - {{ formatDate(event.end_datetime) }}
+            </small>
+          </p>
+          <p class="card-text">{{ event.description_short }}</p>
+        </div>
+        <img
+          *ngIf="event.images"
+          [src]="event.images[0].small.url"
+          class="card-img-top"
+          alt="event image"
+        />
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noEvents>
+    <div class="row">
+      <div class="col">
+        <p class="text-muted text-center">No events scheduled for this day.</p>
+      </div>
+    </div>
+  </ng-template>
+</div>

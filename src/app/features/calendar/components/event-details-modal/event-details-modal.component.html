@@ -1,0 +1,58 @@
+<ng-container *ngIf="isLoading">
+  <div class="modal-body h-100">
+    <app-spinner-full></app-spinner-full>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!!event">
+  <div class="modal-header" id="create-offer-modal-header">
+    <div>
+      <h5 class="modal-title">{{ event.title }}</h5>
+    </div>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="closeModal()"
+    ></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-4 order-lg-2">
+        <div class="card card-body shadow-sm">
+          <a
+            [href]="event.feed_event_url"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Event website</a
+          >
+          <div>
+            📅 Date
+            <small class="text-muted">
+              {{ event.start_utc_datetime | date : "MMMM dd, YYYY" }} -
+              {{ event.end_utc_datetime | date : "MMMM dd, YYYY" }}
+            </small>
+          </div>
+          <div>
+            🕒 Time
+            <small class="text-muted">
+              {{ event.start_utc_datetime | date : "h:mm a" }} -
+              {{ event.end_utc_datetime | date : "h:mm a" }}
+            </small>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 overflow-x-auto order-lg-1">
+        <div *ngIf="event.images && event.images.length > 0">
+          <img
+            [src]="event.images[0].medium.url"
+            class="text-center"
+            alt="event image"
+          />
+        </div>
+        <div [innerHTML]="event.description | safeHtml"></div>
+      </div>
+    </div>
+  </div>
+</ng-container>
